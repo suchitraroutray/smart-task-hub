@@ -19,7 +19,7 @@ load_dotenv()
 # ==================== MCP SERVER (for AI agents) ====================
 # NOTE: MCP server must be created before FastAPI app to properly combine lifespans
 
-mcp = FastMCP("Galaxium Booking System")
+mcp = FastMCP("SmartTaskHub")
 
 
 @mcp.tool()
@@ -188,8 +188,8 @@ async def lifespan(app: FastAPI):
 # ==================== FASTAPI APP (REST + Swagger UI) ====================
 
 app = FastAPI(
-    title="Galaxium Booking System",
-    description="API for booking interplanetary flights. Swagger UI available at /docs",
+    title="SmartTaskHub",
+    description="Intelligent Task Management System with automatic priority assignment. Swagger UI available at /docs",
     version="1.0.0",
     lifespan=lifespan,
     root_path="/api"  # Add this for ALB routing

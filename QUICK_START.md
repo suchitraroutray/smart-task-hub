@@ -1,4 +1,4 @@
-# 🚀 Quick Start - Where & How to Use Your Application
+# 🚀 Quick Start - SmartTaskHub
 
 ## 📍 WHERE IS THE APPLICATION?
 
@@ -85,7 +85,7 @@ npm run dev
 
 **🎉 YOU SHOULD SEE:**
 - A space-themed website
-- "Galaxium Travels" in the header
+- "SmartTaskHub" in the header
 - Navigation menu: Home, Flights, My Bookings, Tasks
 
 ---
@@ -150,7 +150,7 @@ Category: Work
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  🚀 Galaxium Travels          [Login] or [Alice ▼] │
+│  🚀 SmartTaskHub              [Login] or [Alice ▼] │
 │  Home | Flights | My Bookings | Tasks              │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
@@ -223,7 +223,7 @@ After starting the application, verify:
 - [ ] Backend terminal shows "Uvicorn running on http://0.0.0.0:8001"
 - [ ] Frontend terminal shows "Local: http://localhost:5173/"
 - [ ] Browser opens to http://localhost:5173
-- [ ] You see "Galaxium Travels" header
+- [ ] You see "SmartTaskHub" header
 - [ ] You can click "Login" and enter credentials
 - [ ] You see "Tasks" in the navigation menu
 - [ ] You can create a task

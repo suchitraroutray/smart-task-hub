@@ -1,19 +1,19 @@
-# 🚀 Galaxium Travels - Interplanetary Booking System
+# 🎯 SmartTaskHub - Intelligent Task Management System
 
-A complete full-stack application for booking interplanetary space travel, featuring a modern React frontend and a FastAPI backend with dual REST and MCP protocol support.
+A complete full-stack application for smart task management with automatic priority assignment, featuring a modern React frontend and a FastAPI backend with dual REST and MCP protocol support.
 
 ## 🌟 Features
 
-- **Modern Space-Themed UI** - Beautiful, responsive interface with animated starfield
-- **Full Booking System** - Browse flights, make bookings, manage reservations
-- **Smart Task Assistant** - Organize tasks with automatic priority assignment and smart categorization
-- **Three Seat Classes** - Economy, Business, and Galaxium Class with independent availability tracking
-- **Dynamic Pricing** - Class-based multipliers (1x, 2.5x, 5x) applied to base flight prices
+- **Smart Priority Assignment** - Automatic priority calculation based on category and keywords
+- **Intelligent Categorization** - Organize tasks by Work, Personal, and Urgent categories
+- **Status Tracking** - Track tasks through Pending, In Progress, and Completed states
+- **Advanced Filtering** - Filter tasks by category, priority, and status
+- **Color-Coded UI** - Visual organization with category-based color coding
 - **Dual Protocol Backend** - REST API and MCP (Model Context Protocol) support
 - **Type-Safe** - Full TypeScript frontend and Python type hints with strict validation
-- **Real-Time Updates** - Live seat availability per class and booking status
+- **Real-Time Updates** - Instant task updates and filtering
 - **User Management** - Simple name/email authentication
-- **Comprehensive Testing** - Full test coverage for services and REST endpoints
+- **Comprehensive Testing** - Full test coverage for services and REST endpoints (20+ tests)
 - **Production Ready** - Optimized builds and comprehensive error handling
 
 ## 🏗️ Architecture

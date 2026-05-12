@@ -1,6 +1,6 @@
 # 🎯 Smart Task Assistant - Step-by-Step Usage Guide
 
-This guide will walk you through using the newly created Smart Task Assistant feature in the Galaxium Travels application.
+This guide will walk you through using the Smart Task Assistant feature in the SmartTaskHub application.
 
 ## 📋 Table of Contents
 1. [Starting the Application](#starting-the-application)
