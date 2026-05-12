@@ -8,6 +8,10 @@ import type {
   ErrorResponse,
   Quote,
   Hold,
+  Task,
+  TaskCreate,
+  TaskUpdate,
+  TaskFilters,
 } from '../types';
 
 // Create axios instance with base configuration
@@ -222,3 +226,71 @@ export const healthCheck = async (): Promise<{ status: string }> => {
 export default api;
 
 // Made with Bob
+
+
+// ==================== Task Endpoints ====================
+
+/**
+ * Get all tasks with optional filtering
+ */
+export const getTasks = async (
+  userId?: number,
+  filters?: TaskFilters
+): Promise<Task[]> => {
+  const params = new URLSearchParams();
+  
+  if (userId) {
+    params.append('user_id', String(userId));
+  }
+  
+  if (filters) {
+    if (filters.category) params.append('category', filters.category);
+    if (filters.priority) params.append('priority', filters.priority);
+    if (filters.status) params.append('status', filters.status);
+  }
+  
+  const queryString = params.toString();
+  const url = queryString ? `/tasks?${queryString}` : '/tasks';
+  
+  const response = await api.get<Task[]>(url);
+  return response.data;
+};
+
+/**
+ * Get a specific task by ID
+ */
+export const getTask = async (taskId: number): Promise<Task | ErrorResponse> => {
+  const response = await api.get<Task | ErrorResponse>(`/tasks/${taskId}`);
+  return response.data;
+};
+
+/**
+ * Create a new task
+ */
+export const createTask = async (
+  data: TaskCreate
+): Promise<Task | ErrorResponse> => {
+  const response = await api.post<Task | ErrorResponse>('/tasks', data);
+  return response.data;
+};
+
+/**
+ * Update an existing task
+ */
+export const updateTask = async (
+  taskId: number,
+  data: TaskUpdate
+): Promise<Task | ErrorResponse> => {
+  const response = await api.put<Task | ErrorResponse>(`/tasks/${taskId}`, data);
+  return response.data;
+};
+
+/**
+ * Delete a task
+ */
+export const deleteTask = async (
+  taskId: number
+): Promise<{ success: boolean; message: string } | ErrorResponse> => {
+  const response = await api.delete(`/tasks/${taskId}`);
+  return response.data;
+};

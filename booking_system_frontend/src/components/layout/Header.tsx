@@ -54,16 +54,28 @@ export const Header = () => {
               Flights
             </Link>
             {user && (
-              <Link
-                to="/bookings"
-                className={`text-sm font-medium transition-colors ${
-                  isActive('/bookings')
-                    ? 'text-cosmic-purple'
-                    : 'text-star-white/70 hover:text-star-white'
-                }`}
-              >
-                My Bookings
-              </Link>
+              <>
+                <Link
+                  to="/bookings"
+                  className={`text-sm font-medium transition-colors ${
+                    isActive('/bookings')
+                      ? 'text-cosmic-purple'
+                      : 'text-star-white/70 hover:text-star-white'
+                  }`}
+                >
+                  My Bookings
+                </Link>
+                <Link
+                  to="/tasks"
+                  className={`text-sm font-medium transition-colors ${
+                    isActive('/tasks')
+                      ? 'text-cosmic-purple'
+                      : 'text-star-white/70 hover:text-star-white'
+                  }`}
+                >
+                  Tasks
+                </Link>
+              </>
             )}
           </nav>
 
@@ -127,16 +139,28 @@ export const Header = () => {
             Flights
           </Link>
           {user && (
-            <Link
-              to="/bookings"
-              className={`text-sm font-medium transition-colors ${
-                isActive('/bookings')
-                  ? 'text-cosmic-purple'
-                  : 'text-star-white/70 hover:text-star-white'
-              }`}
-            >
-              My Bookings
-            </Link>
+            <>
+              <Link
+                to="/bookings"
+                className={`text-sm font-medium transition-colors ${
+                  isActive('/bookings')
+                    ? 'text-cosmic-purple'
+                    : 'text-star-white/70 hover:text-star-white'
+                }`}
+              >
+                My Bookings
+              </Link>
+              <Link
+                to="/tasks"
+                className={`text-sm font-medium transition-colors ${
+                  isActive('/tasks')
+                    ? 'text-cosmic-purple'
+                    : 'text-star-white/70 hover:text-star-white'
+                }`}
+              >
+                Tasks
+              </Link>
+            </>
           )}
         </nav>
       </div>

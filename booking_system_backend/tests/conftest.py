@@ -97,3 +97,38 @@ def sample_booking_data():
         "name": "Test User",
         "flight_id": 1
     }
+
+
+
+@pytest.fixture
+def test_user(db_session):
+    """Create a test user."""
+    from models import User
+    user = User(name="Test User", email="test@example.com")
+    db_session.add(user)
+    db_session.commit()
+    db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
+def test_task(db_session, test_user):
+    """Create a test task."""
+    from models import Task
+    from datetime import datetime
+    
+    now = datetime.utcnow().isoformat()
+    task = Task(
+        user_id=test_user.user_id,
+        title="Test Task",
+        description="Test description",
+        category="Work",
+        priority="High",
+        status="pending",
+        created_at=now,
+        updated_at=now
+    )
+    db_session.add(task)
+    db_session.commit()
+    db_session.refresh(task)
+    return task

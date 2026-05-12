@@ -87,3 +87,34 @@ class ErrorResponse(BaseModel):
     error: str
     error_code: str
     details: Optional[str] = None
+
+
+# ==================== Task Schemas ====================
+
+class TaskCreate(BaseModel):
+    user_id: int
+    title: str
+    description: Optional[str] = None
+    category: Literal['Work', 'Personal', 'Urgent']
+
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[Literal['Work', 'Personal', 'Urgent']] = None
+    status: Optional[Literal['pending', 'in_progress', 'completed']] = None
+
+
+class TaskOut(BaseModel):
+    task_id: int
+    user_id: int
+    title: str
+    description: Optional[str]
+    category: str
+    priority: str
+    status: str
+    created_at: str
+    updated_at: str
+
+    class Config:
+        from_attributes = True

@@ -9,8 +9,8 @@ import os
 import httpx
 from db import SessionLocal, init_db, get_db
 from seed import seed
-from services import flight, user, booking
-from schemas import FlightOut, BookingOut, UserOut, ErrorResponse, BookingRequest, UserRegistration
+from services import flight, user, booking, task
+from schemas import FlightOut, BookingOut, UserOut, ErrorResponse, BookingRequest, UserRegistration, TaskOut, TaskCreate, TaskUpdate
 
 # Load environment variables from .env file
 load_dotenv()
@@ -100,6 +100,68 @@ def get_user_id(name: str, email: str) -> UserOut:
         if isinstance(result, ErrorResponse):
             raise Exception(result.details or result.error)
         return result
+    finally:
+        db.close()
+
+
+@mcp.tool()
+def list_user_tasks(user_id: int) -> list[TaskOut]:
+    """List all tasks for a specific user.
+    Returns a list of tasks with title, description, category, priority, and status."""
+    db = SessionLocal()
+    try:
+        return task.list_tasks(db, user_id=user_id)
+    finally:
+        db.close()
+
+
+@mcp.tool()
+def create_task(user_id: int, title: str, description: str, category: str) -> TaskOut:
+    """Create a new task for a user with auto-calculated priority.
+    Requires user_id, title, and category ('Work', 'Personal', or 'Urgent').
+    Optional description provides additional context.
+    Priority is automatically calculated based on category and keywords.
+    Returns task details or raises an error if creation fails."""
+    db = SessionLocal()
+    try:
+        task_data = TaskCreate(
+            user_id=user_id,
+            title=title,
+            description=description,
+            category=category
+        )
+        result = task.create_task(db, task_data)
+        if isinstance(result, ErrorResponse):
+            raise Exception(result.details or result.error)
+        return result
+    finally:
+        db.close()
+
+
+@mcp.tool()
+def update_task_status(task_id: int, status: str) -> TaskOut:
+    """Update the status of a task.
+    Status must be 'pending', 'in_progress', or 'completed'.
+    Returns updated task details or raises an error if task not found."""
+    db = SessionLocal()
+    try:
+        task_data = TaskUpdate(status=status)
+        result = task.update_task(db, task_id, task_data)
+        if isinstance(result, ErrorResponse):
+            raise Exception(result.details or result.error)
+        return result
+    finally:
+        db.close()
+
+
+@mcp.tool()
+def get_high_priority_tasks(user_id: int) -> list[TaskOut]:
+    """Get all high and critical priority tasks for a user that are not completed.
+    Useful for identifying urgent items that need attention.
+    Returns a list of high-priority tasks."""
+    db = SessionLocal()
+    try:
+        return task.get_high_priority_tasks(db, user_id)
     finally:
         db.close()
 
@@ -269,6 +331,60 @@ def register_user_endpoint(request: UserRegistration, db: Session = Depends(get_
 def get_user_endpoint(name: str, email: str, db: Session = Depends(get_db)):
     """Get user by name and email."""
     return user.get_user(db, name, email)
+
+
+# ==================== TASK ENDPOINTS ====================
+
+@app.get("/tasks", response_model=list[TaskOut], tags=["Tasks"])
+def get_tasks(
+    user_id: Optional[int] = None,
+    category: Optional[str] = None,
+    priority: Optional[str] = None,
+    status: Optional[str] = None,
+    db: Session = Depends(get_db)
+):
+    """List all tasks with optional filtering.
+    
+    **Filters:**
+    - user_id: Filter by user ID
+    - category: Filter by category (Work, Personal, Urgent)
+    - priority: Filter by priority (Low, Medium, High, Critical)
+    - status: Filter by status (pending, in_progress, completed)
+    """
+    return task.list_tasks(db, user_id, category, priority, status)
+
+
+@app.get("/tasks/{task_id}", response_model=Union[TaskOut, ErrorResponse], tags=["Tasks"])
+def get_task_endpoint(task_id: int, db: Session = Depends(get_db)):
+    """Get a specific task by ID."""
+    return task.get_task(db, task_id)
+
+
+@app.post("/tasks", response_model=Union[TaskOut, ErrorResponse], tags=["Tasks"])
+def create_task_endpoint(task_data: TaskCreate, db: Session = Depends(get_db)):
+    """Create a new task with auto-calculated priority.
+    
+    Priority is automatically calculated based on:
+    - Category (Urgent → Critical, Work → High, Personal → Medium)
+    - Keywords in title/description (urgent, asap, critical, etc.)
+    """
+    return task.create_task(db, task_data)
+
+
+@app.put("/tasks/{task_id}", response_model=Union[TaskOut, ErrorResponse], tags=["Tasks"])
+def update_task_endpoint(task_id: int, task_data: TaskUpdate, db: Session = Depends(get_db)):
+    """Update an existing task.
+    
+    Can update title, description, category, or status.
+    Priority is recalculated if category changes.
+    """
+    return task.update_task(db, task_id, task_data)
+
+
+@app.delete("/tasks/{task_id}", tags=["Tasks"])
+def delete_task_endpoint(task_id: int, db: Session = Depends(get_db)):
+    """Delete a task by ID."""
+    return task.delete_task(db, task_id)
 
 
 # ==================== JAVA SERVICE INTEGRATION ====================

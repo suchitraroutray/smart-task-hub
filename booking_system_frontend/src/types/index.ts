@@ -113,4 +113,42 @@ export interface StoredHold {
   reservedUntil: string;
 }
 
+// ==================== Task Types ====================
+
+export type TaskCategory = 'Work' | 'Personal' | 'Urgent';
+export type TaskPriority = 'Low' | 'Medium' | 'High' | 'Critical';
+export type TaskStatus = 'pending' | 'in_progress' | 'completed';
+
+export interface Task {
+  task_id: number;
+  user_id: number;
+  title: string;
+  description?: string;
+  category: TaskCategory;
+  priority: TaskPriority;
+  status: TaskStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TaskCreate {
+  user_id: number;
+  title: string;
+  description?: string;
+  category: TaskCategory;
+}
+
+export interface TaskUpdate {
+  title?: string;
+  description?: string;
+  category?: TaskCategory;
+  status?: TaskStatus;
+}
+
+export interface TaskFilters {
+  category?: TaskCategory;
+  priority?: TaskPriority;
+  status?: TaskStatus;
+}
+
 // Made with Bob

@@ -6,6 +6,7 @@ A complete full-stack application for booking interplanetary space travel, featu
 
 - **Modern Space-Themed UI** - Beautiful, responsive interface with animated starfield
 - **Full Booking System** - Browse flights, make bookings, manage reservations
+- **Smart Task Assistant** - Organize tasks with automatic priority assignment and smart categorization
 - **Three Seat Classes** - Economy, Business, and Galaxium Class with independent availability tracking
 - **Dynamic Pricing** - Class-based multipliers (1x, 2.5x, 5x) applied to base flight prices
 - **Dual Protocol Backend** - REST API and MCP (Model Context Protocol) support
@@ -128,6 +129,37 @@ Once started, access:
 - **[scripts/](scripts/)** - Operational scripts organized by deployment target
 
 ## 🎯 User Guide
+
+### Managing Tasks
+
+The Smart Task Assistant helps you organize and prioritize your work:
+
+1. **Create Tasks** - Click "Create New Task" on the Tasks page
+2. **Categorize** - Choose from three categories:
+   - 🔵 **Work** - Professional tasks (High priority)
+   - 🟢 **Personal** - Personal errands (Medium priority)
+   - 🔴 **Urgent** - Critical items (Critical priority)
+3. **Smart Priority** - Priority is automatically calculated based on:
+   - Category selection
+   - Keywords in title/description (urgent, asap, critical, etc.)
+4. **Track Progress** - Update task status:
+   - ⚪ Pending - Not started
+   - 🔵 In Progress - Currently working on it
+   - ✅ Completed - Finished
+5. **Filter & Search** - Use filters to find tasks by category, priority, or status
+6. **Edit & Delete** - Manage tasks with inline edit and delete actions
+
+### Task Priority System
+
+Tasks are automatically assigned priority levels:
+
+| Category | Base Priority | With Urgent Keywords |
+|----------|--------------|---------------------|
+| Urgent | Critical | Critical |
+| Work | High | High |
+| Personal | Medium | High |
+
+**Urgent Keywords:** asap, urgent, critical, emergency, immediate, now
 
 ### Booking a Flight
 
