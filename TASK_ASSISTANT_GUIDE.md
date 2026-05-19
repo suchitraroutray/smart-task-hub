@@ -19,7 +19,7 @@ This guide will walk you through using the Smart Task Assistant feature in the S
 
 Navigate to the project directory:
 ```bash
-cd c:/Users/004I25744/Downloads/IBM-bob/galaxium-travels
+cd c:/Users/004I25744/Downloads/IBM-bob/smart-task-hub
 ```
 
 ### Step 2: Start the Backend Server
