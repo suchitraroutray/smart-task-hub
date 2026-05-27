@@ -386,6 +386,76 @@ def delete_task_endpoint(task_id: int, db: Session = Depends(get_db)):
     """Delete a task by ID."""
     return task.delete_task(db, task_id)
 
+# ==================== POWER BI AUTOMATION ====================
+
+@app.post("/powerbi/check-refreshes", response_model=list[TaskOut], tags=["Power BI Automation"])
+def check_powerbi_refreshes(
+    workspace_id: str,
+    user_id: int,
+    tenant_id: str = None,
+    client_id: str = None,
+    client_secret: str = None,
+    db: Session = Depends(get_db)
+):
+    """Check Power BI workspace for refresh failures and create tasks automatically.
+    
+    Requires Azure AD credentials for Power BI API access.
+    Creates tasks for:
+    - Failed dataset refreshes
+    - Slow refreshes (>30 minutes)
+    
+    Returns list of created tasks.
+    """
+    from services.powerbi_monitor import PowerBIMonitor
+    
+    # Use environment variables if not provided
+    tenant_id = tenant_id or os.getenv("POWERBI_TENANT_ID")
+    client_id = client_id or os.getenv("POWERBI_CLIENT_ID")
+    client_secret = client_secret or os.getenv("POWERBI_CLIENT_SECRET")
+    
+    if not all([tenant_id, client_id, client_secret]):
+        raise HTTPException(
+            status_code=400,
+            detail="Power BI credentials required. Set POWERBI_TENANT_ID, POWERBI_CLIENT_ID, POWERBI_CLIENT_SECRET"
+        )
+    
+    monitor = PowerBIMonitor(tenant_id, client_id, client_secret)
+    
+    # Check for failures
+    failure_tasks = monitor.check_refresh_failures(db, workspace_id, user_id)
+    
+    # Check for slow refreshes
+    slow_tasks = monitor.check_slow_refreshes(db, workspace_id, user_id, threshold_minutes=30)
+    
+    return failure_tasks + slow_tasks
+
+
+@app.post("/tasks/scheduled/weekly", response_model=list[TaskOut], tags=["Power BI Automation"])
+def create_weekly_tasks_endpoint(user_id: int, db: Session = Depends(get_db)):
+    """Create weekly recurring tasks for Power BI developers.
+    
+    Creates tasks for:
+    - Dashboard performance review
+    - Report backups
+    - Code reviews
+    """
+    from services.powerbi_monitor import create_weekly_tasks
+    return create_weekly_tasks(db, user_id)
+
+
+@app.post("/tasks/scheduled/monthly", response_model=list[TaskOut], tags=["Power BI Automation"])
+def create_monthly_tasks_endpoint(user_id: int, db: Session = Depends(get_db)):
+    """Create monthly recurring tasks for Power BI developers.
+    
+    Creates tasks for:
+    - Fiscal year calculations update
+    - Data source connection review
+    - Unused dataset cleanup
+    """
+    from services.powerbi_monitor import create_monthly_tasks
+    return create_monthly_tasks(db, user_id)
+
+
 
 # ==================== JAVA SERVICE INTEGRATION ====================
 

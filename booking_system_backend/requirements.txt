@@ -9,3 +9,6 @@ pytest-asyncio
 pytest-cov
 httpx
 psycopg2-binary
+requests
+msal
+apscheduler
