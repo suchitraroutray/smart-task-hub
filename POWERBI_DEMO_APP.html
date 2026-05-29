@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Task Hub - Power BI Developer Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 50%, #db2777 100%);
+            min-height: 100vh;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Power BI themed background */
+        .powerbi-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.1;
+        }
+
+        .grid-pattern {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+        }
+
+        /* Header with Power BI branding */
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid #f2c811;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .powerbi-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #f2c811 0%, #e97132 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        .logo-subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .workspace-badge {
+            background: #f0fdf4;
+            border: 2px solid #10b981;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #065f46;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #f2c811 0%, #e97132 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card.critical { border-left-color: #ef4444; }
+        .stat-card.warning { border-left-color: #f59e0b; }
+        .stat-card.success { border-left-color: #10b981; }
+        .stat-card.info { border-left-color: #3b82f6; }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .stat-trend {
+            font-size: 12px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .trend-up { color: #10b981; }
+        .trend-down { color: #ef4444; }
+
+        /* Main Content Area */
+        .main-panel {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .side-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #f2c811 0%, #e97132 100%);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(242, 200, 17, 0.4);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #1e3a8a;
+        }
+
+        .tab.active {
+            color: #1e3a8a;
+            border-bottom-color: #f2c811;
+        }
+
+        /* Task Cards - Power BI Styled */
+        .task-card {
+            background: white;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .task-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .task-card.critical { border-left-color: #ef4444; background: linear-gradient(90deg, #fef2f2 0%, white 10%); }
+        .task-card.high { border-left-color: #f59e0b; background: linear-gradient(90deg, #fffbeb 0%, white 10%); }
+        .task-card.medium { border-left-color: #3b82f6; background: linear-gradient(90deg, #eff6ff 0%, white 10%); }
+        .task-card.low { border-left-color: #10b981; background: linear-gradient(90deg, #f0fdf4 0%, white 10%); }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+            flex: 1;
+        }
+
+        .task-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-critical { background: #fee2e2; color: #991b1b; }
+        .badge-high { background: #fef3c7; color: #92400e; }
+        .badge-medium { background: #dbeafe; color: #1e40af; }
+        .badge-low { background: #d1fae5; color: #065f46; }
+        .badge-dataset { background: #f3e8ff; color: #6b21a8; }
+        .badge-report { background: #e0e7ff; color: #3730a3; }
+        .badge-workspace { background: #fce7f3; color: #9f1239; }
+
+        .task-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .task-description {
+            color: #4b5563;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        /* Reports Panel */
+        .report-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+
+        .report-card:hover {
+            border-color: #f2c811;
+            box-shadow: 0 4px 16px rgba(242, 200, 17, 0.2);
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .report-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+        }
+
+        .report-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-success { background: #d1fae5; color: #065f46; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+        .status-running { background: #dbeafe; color: #1e40af; }
+
+        .report-meta {
+            font-size: 12px;
+            color: #6b7280;
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Use Cases Section */
+        .use-cases-section {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .use-case-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .use-case-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #3b82f6;
+            transition: all 0.3s;
+        }
+
+        .use-case-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .use-case-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .use-case-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+        }
+
+        .use-case-desc {
+            font-size: 13px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .close-btn:hover {
+            color: #1f2937;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .use-case-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Power BI Background -->
+    <div class="powerbi-bg">
+        <div class="grid-pattern"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <div class="powerbi-icon">⚡</div>
+                <div class="logo-text">
+                    <div class="logo-title">Smart Task Hub</div>
+                    <div class="logo-subtitle">Power BI Developer Edition</div>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="workspace-badge">🏢 Production Workspace</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 14px;">Suchitra Routray</div>
+                    <div style="font-size: 11px; color: #6b7280;">Power BI Developer</div>
+                </div>
+                <div class="user-avatar">SR</div>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+            <div class="stat-card critical">
+                <div class="stat-value" style="color: #ef4444;">3</div>
+                <div class="stat-label">Failed Refreshes</div>
+                <div class="stat-trend trend-down">↓ 2 from yesterday</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-value" style="color: #f59e0b;">5</div>
+                <div class="stat-label">Slow Queries</div>
+                <div class="stat-trend trend-up">↑ 1 from yesterday</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-value" style="color: #10b981;">24</div>
+                <div class="stat-label">Active Reports</div>
+                <div class="stat-trend trend-up">↑ 3 new this week</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-value" style="color: #3b82f6;">12</div>
+                <div class="stat-label">Pending Tasks</div>
+                <div class="stat-trend">6 high priority</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Main Panel - Tasks -->
+            <div class="main-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        📋 Active Tasks & Alerts
+                    </div>
+                    <button class="refresh-btn" onclick="refreshTasks()">🔄 Refresh All</button>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('all')">All Tasks (12)</div>
+                    <div class="tab" onclick="switchTab('critical')">Critical (3)</div>
+                    <div class="tab" onclick="switchTab('datasets')">Datasets (5)</div>
+                    <div class="tab" onclick="switchTab('reports')">Reports (4)</div>
+                </div>
+
+                <!-- Tasks List -->
+                <div id="tasksList">
+                    <!-- Tasks will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Side Panel -->
+            <div class="side-panel">
+                <!-- Reports Status -->
+                <div class="main-panel" style="padding: 20px;">
+                    <div class="panel-title" style="margin-bottom: 15px; font-size: 16px;">
+                        📊 Dataset Refresh Status
+                    </div>
+                    <div id="reportsList">
+                        <!-- Reports will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="main-panel" style="padding: 20px;">
+                    <div class="panel-title" style="margin-bottom: 15px; font-size: 16px;">
+                        ⚡ Quick Actions
+                    </div>
+                    <button class="task-btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="checkRefreshes()">
+                        🔍 Check All Refreshes
+                    </button>
+                    <button class="task-btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="createWeeklyTasks()">
+                        📅 Create Weekly Tasks
+                    </button>
+                    <button class="task-btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="createMonthlyTasks()">
+                        📆 Create Monthly Tasks
+                    </button>
+                    <button class="task-btn btn-secondary" style="width: 100%;" onclick="showUseCases()">
+                        💡 View Use Cases
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Use Cases Section -->
+        <div class="use-cases-section" id="useCasesSection" style="display: none;">
+            <div class="panel-header">
+                <div class="panel-title">
+                    💡 Technical Use Cases & Applications
+                </div>
+                <button class="refresh-btn" onclick="hideUseCases()">✕ Close</button>
+            </div>
+
+            <div class="use-case-grid">
+                <div class="use-case-card">
+                    <div class="use-case-icon">🔄</div>
+                    <div class="use-case-title">Automated Refresh Monitoring</div>
+                    <div class="use-case-desc">
+                        Monitor all dataset refreshes across workspaces. Auto-create tasks for failures with error details, affected reports, and suggested fixes.
+                    </div>
+                </div>
+
+                <div class="use-case-card">
+                    <div class="use-case-icon">⚡</div>
+                    <div class="use-case-title">Performance Optimization</div>
+                    <div class="use-case-desc">
+                        Track slow-running queries, identify bottlenecks, and create optimization tasks. Monitor DAX query performance and suggest improvements.
+                    </div>
+                </div>
+
+                <div class="use-case-card">
+                    <div class="use-case-icon">📊</div>
+                    <div class="use-case-title">Report Lifecycle Management</div>
+                    <div class="use-case-desc">
+                        Manage report versions, track changes, schedule reviews, and maintain documentation. Automate report certification workflows.
+                    </div>
+                </div>
+
+                <div class="use-case-card">
+                    <div class="use-case-icon">🔐</div>
+                    <div class="use-case-title">Security & Compliance</div>
+                    <div class="use-case-desc">
+                        Monitor RLS implementation, track data access patterns, audit user permissions, and ensure compliance with data governance policies.
+                    </div>
+                </div>
+
+                <div class="use-case-card">
+                    <div class="use-case-icon">📅</div>
+                    <div class="use-case-title">Scheduled Maintenance</div>
+                    <div class="use-case-desc">
+                        Auto-create weekly/monthly maintenance tasks: backup reports, update fiscal calendars, review data sources, clean unused datasets.
+                    </div>
+                </div>
+
+                <div class="use-case-card">
+                    <div class="use-case-icon">👥</div>
+                    <div class="use-case-title">Team Collaboration</div>
+                    <div class="use-case-desc">
+                        Assign tasks to team members, track code reviews, manage DAX best practices, coordinate deployments across environments.
+                    </div>
+                </div>
+
+                <div class="use-case-card">
+                    <div class="use-case-icon">📈</div>
+                    <div class="use-case-title">Capacity Management</div>
+                    <div class="use-case-desc">
+                        Monitor Premium capacity usage, track resource consumption, identify optimization opportunities, and plan capacity scaling.
+                    </div>
+                </div>
+
+                <div class="use-case-card">
+                    <div class="use-case-icon">🔔</div>
+                    <div class="use-case-title">Proactive Alerting</div>
+                    <div class="use-case-desc">
+                        Set up custom alerts for data quality issues, schema changes, gateway connectivity, and service health incidents.
+                    </div>
+                </div>
+
+                <div class="use-case-card">
+                    <div class="use-case-icon">📝</div>
+                    <div class="use-case-title">Documentation Automation</div>
+                    <div class="use-case-desc">
+                        Auto-generate data lineage docs, maintain measure libraries, track dependencies, and keep technical documentation up-to-date.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Task Details</div>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sample Power BI specific tasks
+        const tasks = [
+            {
+                id: 1,
+                title: "CRITICAL: Sales Analytics Dataset Refresh Failed",
+                description: "Refresh failed at 09:30 AM IST\nError: Data source connection timeout to SQL Server\nAffected Reports: Q4 Sales Dashboard, Executive Summary\nDataset ID: abc-123-def-456\n\nSuggested Actions:\n1. Check SQL Server connectivity\n2. Verify gateway status\n3. Review data source credentials",
+                priority: "critical",
+                type: "dataset",
+                status: "pending",
+                created: "2 hours ago",
+                workspace: "Production",
+                affectedReports: 3
+            },
+            {
+                id: 2,
+                title: "HIGH: Customer Segmentation Report - Slow Query Performance",
+                description: "DAX query execution time: 45 seconds (threshold: 10s)\nMeasure: Total Revenue by Segment\nReport: Customer Analytics Dashboard\n\nOptimization Suggestions:\n1. Review measure complexity\n2. Consider aggregation tables\n3. Optimize relationships",
+                priority: "high",
+                type: "report",
+                status: "in_progress",
+                created: "5 hours ago",
+                workspace: "Production",
+                affectedReports: 1
+            },
+            {
+                id: 3,
+                title: "CRITICAL: Finance Workspace - Gateway Connection Lost",
+                description: "On-premises data gateway disconnected\nAffected Datasets: 5\nAffected Reports: 12\nLast successful connection: 08:15 AM\n\nImmediate Actions Required:\n1. Check gateway service status\n2. Verify network connectivity\n3. Review gateway logs",
+                priority: "critical",
+                type: "workspace",
+                status: "pending",
+                created: "1 hour ago",
+                workspace: "Finance",
+                affectedReports: 12
+            },
+            {
+                id: 4,
+                title: "Weekly: Review Dashboard Performance Metrics",
+                description: "Scheduled weekly task\n\nChecklist:\n✓ Review load times for all dashboards\n✓ Check query performance statistics\n✓ Analyze user feedback and usage patterns\n✓ Identify optimization opportunities\n✓ Update performance documentation",
+                priority: "medium",
+                type: "dataset",
+                status: "pending",
+                created: "1 day ago",
+                workspace: "All",
+                affectedReports: 24
+            },
+            {
+                id: 5,
+                title: "HIGH: Inventory Dataset - Schema Change Detected",
+                description: "Source table schema modified\nTable: dbo.Products\nChanges: 3 new columns added\nImpact: 2 reports may need updates\n\nAction Items:\n1. Review new columns\n2. Update data model\n3. Refresh affected reports\n4. Test calculations",
+                priority: "high",
+                type: "dataset",
+                status: "pending",
+                created: "3 hours ago",
+                workspace: "Operations",
+                affectedReports: 2
+            },
+            {
+                id: 6,
+                title: "Monthly: Update Fiscal Year Calculations",
+                description: "Scheduled monthly maintenance\n\nTasks:\n✓ Update fiscal calendar table\n✓ Verify YTD calculations\n✓ Check QTD measures\n✓ Update year-over-year comparisons\n✓ Test all time intelligence functions",
+                priority: "medium",
+                type: "dataset",
+                status: "completed",
+                created: "2 days ago",
+                workspace: "Finance",
+                affectedReports: 8
+            },
+            {
+                id: 7,
+                title: "MEDIUM: HR Analytics - RLS Configuration Review",
+                description: "Quarterly security audit\n\nReview Items:\n• Row-level security roles\n• User assignments\n• Department access rules\n• Manager hierarchy\n• Test RLS with sample users",
+                priority: "medium",
+                type: "report",
+                status: "pending",
+                created: "1 day ago",
+                workspace: "HR",
+                affectedReports: 5
+            },
+            {
+                id: 8,
+                title: "HIGH: Premium Capacity - High CPU Usage Alert",
+                description: "Capacity utilization: 87% (threshold: 80%)\nPeak usage time: 10:00-11:00 AM\nTop consumers:\n1. Sales Analytics (35%)\n2. Finance Reports (28%)\n3. Operations Dashboard (24%)\n\nRecommendations:\n1. Optimize heavy queries\n2. Schedule refreshes off-peak\n3. Consider capacity upgrade",
+                priority: "high",
+                type: "workspace",
+                status: "in_progress",
+                created: "4 hours ago",
+                workspace: "Premium Capacity",
+                affectedReports: 15
+            },
+            {
+                id: 9,
+                title: "Weekly: Backup All Production Reports",
+                description: "Scheduled backup task\n\nBackup Checklist:\n✓ Export all PBIX files\n✓ Save to SharePoint backup location\n✓ Verify file integrity\n✓ Update backup log\n✓ Test restore procedure",
+                priority: "medium",
+                type: "report",
+                status: "pending",
+                created: "6 hours ago",
+                workspace: "Production",
+                affectedReports: 24
+            },
+            {
+                id: 10,
+                title: "MEDIUM: Marketing Dataset - Incremental Refresh Setup",
+                description: "Configure incremental refresh for large dataset\nCurrent size: 2.5 GB\nRows: 15M+\nRefresh time: 45 minutes\n\nSetup Steps:\n1. Define date range parameters\n2. Configure refresh policy\n3. Test incremental refresh\n4. Monitor performance improvement",
+                priority: "medium",
+                type: "dataset",
+                status: "pending",
+                created: "1 day ago",
+                workspace: "Marketing",
+                affectedReports: 4
+            },
+            {
+                id: 11,
+                title: "LOW: Documentation - Update DAX Measure Library",
+                description: "Maintain measure documentation\n\nUpdate Items:\n• Add new measures from Q4\n• Document calculation logic\n• Include usage examples\n• Update best practices\n• Review deprecated measures",
+                priority: "low",
+                type: "report",
+                status: "pending",
+                created: "3 days ago",
+                workspace: "All",
+                affectedReports: 0
+            },
+            {
+                id: 12,
+                title: "HIGH: Data Quality - Null Values in Revenue Column",
+                description: "Data quality issue detected\nDataset: Sales Analytics\nTable: FactSales\nColumn: Revenue\nNull count: 1,247 rows (0.8%)\nDate range: Last 7 days\n\nInvestigation Required:\n1. Check source data\n2. Review ETL process\n3. Identify root cause\n4. Implement data validation",
+                priority: "high",
+                type: "dataset",
+                status: "pending",
+                created: "30 minutes ago",
+                workspace: "Production",
+                affectedReports: 3
+            }
+        ];
+
+        // Sample reports/datasets
+        const reports = [
+            { name: "Sales Analytics", status: "success", lastRefresh: "10 min ago", duration: "2m 15s" },
+            { name: "Finance Dashboard", status: "failed", lastRefresh: "2 hours ago", duration: "N/A" },
+            { name: "HR Analytics", status: "success", lastRefresh: "1 hour ago", duration: "1m 45s" },
+            { name: "Operations Report", status: "running", lastRefresh: "Running...", duration: "3m 20s" },
+            { name: "Marketing Insights", status: "success", lastRefresh: "30 min ago", duration: "1m 30s" },
+            { name: "Customer Segmentation", status: "failed", lastRefresh: "5 hours ago", duration: "N/A" }
+        ];
+
+        let currentFilter = 'all';
+
+        // Render tasks
+        function renderTasks() {
+            const tasksList = document.getElementById('tasksList');
+            let filteredTasks = tasks;
+
+            if (currentFilter === 'critical') {
+                filteredTasks = tasks.filter(t => t.priority === 'critical');
+            } else if (currentFilter === 'datasets') {
+                filteredTasks = tasks.filter(t => t.type === 'dataset');
+            } else if (currentFilter === 'reports') {
+                filteredTasks = tasks.filter(t => t.type === 'report');
+            }
+
+            tasksList.innerHTML = filteredTasks.map(task => `
+                <div class="task-card ${task.priority}">
+                    <div class="task-header">
+                        <div class="task-title">${task.title}</div>
+                    </div>
+                    <div class="task-badges">
+                        <span class="badge badge-${task.priority}">${task.priority.toUpperCase()}</span>
+                        <span class="badge badge-${task.type}">${task.type.toUpperCase()}</span>
+                        <span class="badge" style="background: #f3f4f6; color: #374151;">
+                            ${task.status === 'pending' ? '⚪ PENDING' : task.status === 'in_progress' ? '🔵 IN PROGRESS' : '✅ COMPLETED'}
+                        </span>
+                    </div>
+                    <div class="task-meta">
+                        <span>🏢 ${task.workspace}</span>
+                        <span>📊 ${task.affectedReports} reports</span>
+                        <span>🕐 ${task.created}</span>
+                    </div>
+                    <div class="task-description">${task.description.split('\n').slice(0, 2).join('\n')}</div>
+                    <div class="task-actions">
+                        <button class="task-btn btn-primary" onclick="viewTask(${task.id})">📋 View Details</button>
+                        ${task.status === 'pending' ? `
+                            <button class="task-btn btn-primary" onclick="startTask(${task.id})">▶️ Start Working</button>
+                        ` : task.status === 'in_progress' ? `
+                            <button class="task-btn btn-primary" onclick="completeTask(${task.id})">✅ Mark Complete</button>
+                        ` : ''}
+                        <button class="task-btn btn-secondary" onclick="deleteTask(${task.id})">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render reports
+        function renderReports() {
+            const reportsList = document.getElementById('reportsList');
+            reportsList.innerHTML = reports.map(report => `
+                <div class="report-card">
+                    <div class="report-header">
+                        <div class="report-name">📊 ${report.name}</div>
+                        <span class="report-status status-${report.status}">
+                            ${report.status === 'success' ? '✅ SUCCESS' : report.status === 'failed' ? '❌ FAILED' : '🔄 RUNNING'}
+                        </span>
+                    </div>
+                    <div class="report-meta">
+                        <span>🕐 ${report.lastRefresh}</span>
+                        <span>⏱️ ${report.duration}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Switch tabs
+        function switchTab(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            renderTasks();
+        }
+
+        // View task details
+        function viewTask(id) {
+            const task = tasks.find(t => t.id === id);
+            const modal = document.getElementById('taskModal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #1e3a8a; margin-bottom: 10px;">${task.title}</h3>
+                    <div class="task-badges">
+                        <span class="badge badge-${task.priority}">${task.priority.toUpperCase()}</span>
+                        <span class="badge badge-${task.type}">${task.type.toUpperCase()}</span>
+                        <span class="badge" style="background: #f3f4f6; color: #374151;">${task.status.toUpperCase()}</span>
+                    </div>
+                </div>
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="font-size: 13px; color: #4b5563; white-space: pre-line; line-height: 1.6;">
+                        ${task.description}
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div style="background: #f0f9ff; padding: 12px; border-radius: 8px;">
+                        <div style="font-size: 11px; color: #6b7280; margin-bottom: 5px;">WORKSPACE</div>
+                        <div style="font-weight: 600; color: #1e40af;">🏢 ${task.workspace}</div>
+                    </div>
+                    <div style="background: #fef3c7; padding: 12px; border-radius: 8px;">
+                        <div style="font-size: 11px; color: #6b7280; margin-bottom: 5px;">AFFECTED REPORTS</div>
+                        <div style="font-weight: 600; color: #92400e;">📊 ${task.affectedReports} reports</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    ${task.status === 'pending' ? `
+                        <button class="task-btn btn-primary" onclick="startTask(${task.id}); closeModal();">▶️ Start Working</button>
+                    ` : task.status === 'in_progress' ? `
+                        <button class="task-btn btn-primary" onclick="completeTask(${task.id}); closeModal();">✅ Mark Complete</button>
+                    ` : ''}
+                    <button class="task-btn btn-secondary" onclick="closeModal()">Close</button>
+                </div>
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        // Task actions
+        function startTask(id) {
+            const task = tasks.find(t => t.id === id);
+            task.status = 'in_progress';
+            renderTasks();
+            alert('Task started! Status updated to "In Progress"');
+        }
+
+        function completeTask(id) {
+            const task = tasks.find(t => t.id === id);
+            task.status = 'completed';
+            renderTasks();
+            alert('Task completed! Great work! 🎉');
+        }
+
+        function deleteTask(id) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                const index = tasks.findIndex(t => t.id === id);
+                tasks.splice(index, 1);
+                renderTasks();
+            }
+        }
+
+        // Quick actions
+        function refreshTasks() {
+            alert('🔄 Refreshing all tasks from Power BI workspaces...\n\nThis would connect to Power BI API and check for:\n• Dataset refresh failures\n• Slow query performance\n• Gateway connectivity\n• Capacity issues');
+        }
+
+        function checkRefreshes() {
+            alert('🔍 Checking all dataset refreshes...\n\nFound:\n• 3 failed refreshes\n• 2 slow refreshes (>30 min)\n• 5 warnings\n\nNew tasks created automatically!');
+        }
+
+        function createWeeklyTasks() {
+            alert('📅 Creating weekly recurring tasks...\n\nCreated:\n✓ Review dashboard performance\n✓ Backup all reports\n✓ Code review for DAX measures\n✓ Check data source connections');
+        }
+
+        function createMonthlyTasks() {
+            alert('📆 Creating monthly recurring tasks...\n\nCreated:\n✓ Update fiscal year calculations\n✓ Review data source connections\n✓ Clean up unused datasets\n✓ Security audit');
+        }
+
+        function showUseCases() {
+            document.getElementById('useCasesSection').style.display = 'block';
+            document.getElementById('useCasesSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideUseCases() {
+            document.getElementById('useCasesSection').style.display = 'none';
+        }
+
+        // Modal functions
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        // Initialize
+        renderTasks();
+        renderReports();
+    </script>
+</body>
+</html>
